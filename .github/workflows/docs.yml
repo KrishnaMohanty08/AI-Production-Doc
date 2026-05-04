@@ -107,6 +107,9 @@ jobs:
           echo "::group::Progress Doc Generation"
           ./scripts/generate-progress.sh
           echo "::endgroup::"
+      
+      - name: ⏳ Wait
+        run: sleep 30
 
       - name: 🏛️ Generate architecture.md
         if: steps.llmignore.outputs.skip != 'true'
@@ -120,16 +123,19 @@ jobs:
       - name: 🗺️ Generate dfd.md
         if: steps.llmignore.outputs.skip != 'true'
         env:
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY_2 }}
         run: |
           echo "::group::DFD Generation"
           ./scripts/generate-dfd.sh
           echo "::endgroup::"
 
+      - name: ⏳ Wait
+        run: sleep 30
+
       - name: 📋 Generate todos.md
         if: steps.llmignore.outputs.skip != 'true'
         env:
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY_2 }}
         run: |
           echo "::group::TODO Tracker Generation"
           ./scripts/generate-todos.sh
