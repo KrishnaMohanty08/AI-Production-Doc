@@ -1,0 +1,44 @@
+# =============================================================================
+# .llmignore — Tell the AI DevDocs Engine to skip certain file patterns
+# Syntax: One pattern per line (supports grep -E extended regex)
+# Lines starting with # are comments
+# =============================================================================
+
+# Lock files — never meaningful for docs
+package-lock\.json
+yarn\.lock
+pnpm-lock\.yaml
+poetry\.lock
+Gemfile\.lock
+composer\.lock
+
+# Generated / compiled output
+dist/
+build/
+\.next/
+__pycache__/
+\.pyc$
+
+# Test snapshots — too noisy
+__snapshots__/
+\.snap$
+
+# Environment and secrets
+\.env
+\.env\.local
+\.env\.production
+
+# Binary and media files
+\.(png|jpg|jpeg|gif|svg|ico|pdf|zip|tar|gz|woff|woff2|ttf|eot)$
+
+# IDE and editor files
+\.vscode/
+\.idea/
+\.DS_Store
+
+# CI config files (no business logic)
+# Uncomment if you want to skip workflow changes:
+# \.github/
+
+# Database migration history (too verbose)
+# migrations/
