@@ -48,3 +48,6 @@ RULES:
 5. If the diff doesn't change any flows, keep the existing diagrams and update only the Change Summary.
 6. Do NOT wrap outer response in triple backticks. Only the Mermaid code blocks should use backticks.
 7. Prefer graph TD for system-level, graph LR for feature-level.
+8. Edge labels must ONLY contain simple text — no special characters,
+   no variable names, no API keys, no underscores in labels.
+   Good: -->|calls| Bad: -->|GROQ_API_KEY_2|
