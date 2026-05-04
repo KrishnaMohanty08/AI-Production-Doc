@@ -14,6 +14,9 @@ graph TD
     User["👤 User"] --> Frontend["🖥️ Frontend"]
     Frontend --> Backend["⚙️ Backend API"]
     Backend --> Database["🗄️ Database"]
+    Backend --> GitHub["🐙 GitHub"]
+    GitHub --> Secrets["🔒 Secrets"]
+    Secrets -->|GROQ_API_KEY_2|> Backend
 ```
 <!-- AI:END:SYSTEM_DFD -->
 
@@ -21,13 +24,15 @@ graph TD
 
 <!-- AI:START:FEATURE_DFD -->
 ### ⚙️ Feature / Module Data Flow
-_Based on: Initial template_
+_Based on: new api token added_
 
 ```mermaid
 graph LR
-    Request["📥 Request"] --> Handler["🔧 Handler"]
-    Handler --> Service["📦 Service"]
-    Service --> Response["📤 Response"]
+    GitHub["🐙 GitHub"] --> Secrets["🔒 Secrets"]
+    Secrets -->|GROQ_API_KEY_2|> Backend["⚙️ Backend API"]
+    Backend --> Scripts["📝 Scripts"]
+    Scripts -->|generate-dfd.sh|> DFD["🗺️ DFD Generation"]
+    Scripts -->|generate-todos.sh|> Todos["📋 TODO Tracker Generation"]
 ```
 <!-- AI:END:FEATURE_DFD -->
 
@@ -35,7 +40,8 @@ graph LR
 
 <!-- AI:START:CHANGE_SUMMARY -->
 ### 📝 Diagram Change Notes
-- _Initial template. Push a commit to generate real diagrams._
+- Added GitHub and Secrets to the system-level data flow to reflect the new API token.
+- Updated the feature-level data flow to show the generation of DFD and TODO tracker using the new API token.
 <!-- AI:END:CHANGE_SUMMARY -->
 
 ---
