@@ -1,4 +1,4 @@
-# 🤖 AI DevDocs Engine
+#  AI DevDocs Engine
 
 > Automatically generate and update developer documentation from Git commits using an LLM (Groq API + `llama3-70b-8192`).
 
