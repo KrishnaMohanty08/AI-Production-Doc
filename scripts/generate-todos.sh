@@ -15,7 +15,7 @@ OUTPUT_FILE="${ROOT_DIR}/ai-docs/todos.md"
 DIFF_FILE="${ROOT_DIR}/changes.diff"
 COMMIT_FILE="${ROOT_DIR}/commit.txt"
 
-GROQ_MODEL="llama3-70b-8192"
+GROQ_MODEL="llama-3.3-70b-versatile"
 GROQ_API_URL="https://api.groq.com/openai/v1/chat/completions"
 GROQ_MAX_TOKENS=1500
 
@@ -149,3 +149,4 @@ print(f"✅ Written: {output_file}")
 PYEOF
 
 echo "✅ todos.md updated."
+
