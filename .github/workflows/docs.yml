@@ -12,8 +12,6 @@ on:
     paths-ignore:
       - 'ai-docs/**'      # Prevent recursive triggers from doc commits
       - '.llmignore'
-      - '**.md'           # Optional: skip if only markdown changed
-
 permissions:
   contents: write         # Needed to commit updated docs back to repo
 
@@ -46,22 +44,30 @@ jobs:
       # -----------------------------------------------------------------------
       - name: 📝 Generate diff and commit info
         run: |
-          # Get the diff vs previous commit
-          git diff HEAD~1 HEAD \
-            -- ':!ai-docs' ':!*.md' \
-            > changes.diff 2>/dev/null || git diff --cached > changes.diff
+          # Try diff vs previous commit
+          git diff HEAD~1 HEAD -- ':!ai-docs' > changes.diff 2>/dev/null || true
 
-          # Fallback: if diff is empty (first commit), create a placeholder
+          # If empty, try diff of entire last commit (all files)
           if [[ ! -s changes.diff ]]; then
-            echo "Initial commit — no diff available." > changes.diff
+            git diff HEAD~1 HEAD > changes.diff 2>/dev/null || true
           fi
 
-          # Get commit message and metadata
+          # If still empty (only 1 commit exists), show full tree as context
+          if [[ ! -s changes.diff ]]; then
+            git show --stat HEAD > changes.diff 2>/dev/null || true
+          fi
+
+          # Last resort — list all files so LLM has something to work with
+          if [[ ! -s changes.diff ]]; then
+            echo "=== Full repo file listing ===" > changes.diff
+            find . -not -path './.git/*' -not -path './node_modules/*' -type f >> changes.diff
+          fi
+
           git log -1 --pretty=format:"%s%n%nAuthor: %an <%ae>%nDate: %ad%nHash: %H" \
             --date=short > commit.txt
 
           echo "📊 Diff size: $(wc -l < changes.diff) lines"
-          echo "💬 Commit: $(cat commit.txt | head -1)"
+          echo "💬 Commit: $(head -1 commit.txt)"
 
       # -----------------------------------------------------------------------
       # 4. Respect .llmignore — skip if all changed files are ignored
