@@ -1,19 +1,12 @@
-# =============================================================================
-# AI DevDocs Engine — GitHub Actions Workflow
-# Triggers on every push to main and regenerates all AI documentation
-# =============================================================================
-
 name: 🤖 AI DevDocs Engine
 
 on:
-  push:
-    branches:
-      - main
-    paths-ignore:
-      - 'ai-docs/**'      # Prevent recursive triggers from doc commits
-      - '.llmignore'
+  repository_dispatch:
+    types: [generate-docs]
+  workflow_dispatch:  # manual trigger for testing
+
 permissions:
-  contents: write         # Needed to commit updated docs back to repo
+  contents: write
 
 jobs:
   generate-docs:
@@ -22,168 +15,129 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      # -----------------------------------------------------------------------
-      # 1. Checkout full history (needed for git diff)
-      # -----------------------------------------------------------------------
-      - name: 📥 Checkout BUY-SELL repository
+      - name: 📥 Checkout buy-sell-app repository
         uses: actions/checkout@v4
         with:
-          repository: KrishnaMohanty08/your-buy-sell-repo   
-          token: ${{ secrets.GITHUB_TOKEN }}
+          repository: KrishnaMohanty08/buy-sell-app
+          token: ${{ secrets.PAT_TOKEN }}
           fetch-depth: 2
 
-      # -----------------------------------------------------------------------
-      # 2. Set up Python (used in scripts for JSON parsing)
-      # -----------------------------------------------------------------------
       - name: 🐍 Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      # -----------------------------------------------------------------------
-      # 3. Generate changes.diff and commit.txt
-      # -----------------------------------------------------------------------
       - name: 📝 Generate diff and commit info
         run: |
-          # Try diff vs previous commit
-          git diff HEAD~1 HEAD -- ':!ai-docs' > changes.diff 2>/dev/null || true
+          set -e  # Exit on error
+          
+          git diff HEAD~1 HEAD -- ':!ai-docs' > changes.diff || true
 
-          # If empty, try diff of entire last commit (all files)
           if [[ ! -s changes.diff ]]; then
-            git diff HEAD~1 HEAD > changes.diff 2>/dev/null || true
+            git show --stat HEAD > changes.diff || true
           fi
 
-          # If still empty (only 1 commit exists), show full tree as context
-          if [[ ! -s changes.diff ]]; then
-            git show --stat HEAD > changes.diff 2>/dev/null || true
-          fi
-
-          # Last resort — list all files so LLM has something to work with
           if [[ ! -s changes.diff ]]; then
             echo "=== Full repo file listing ===" > changes.diff
             find . -not -path './.git/*' -not -path './node_modules/*' -type f >> changes.diff
           fi
 
+          if [[ ! -s changes.diff ]]; then
+            echo "❌ ERROR: Failed to generate changes.diff"
+            exit 1
+          fi
+
           git log -1 --pretty=format:"%s%n%nAuthor: %an <%ae>%nDate: %ad%nHash: %H" \
             --date=short > commit.txt
 
-          echo "📊 Diff size: $(wc -l < changes.diff) lines"
+          if [[ ! -s commit.txt ]]; then
+            echo "❌ ERROR: Failed to generate commit.txt"
+            exit 1
+          fi
+
+          echo "📊 Diff: $(wc -l < changes.diff) lines"
           echo "💬 Commit: $(head -1 commit.txt)"
 
-      # -----------------------------------------------------------------------
-      # 4. Respect .llmignore — skip if all changed files are ignored
-      # -----------------------------------------------------------------------
-      - name: 🚫 Check .llmignore rules
-        id: llmignore
+      - name: 📁 Copy engine scripts into workspace
         run: |
-          SKIP="false"
-          if [[ -f .llmignore ]]; then
-            CHANGED_FILES=$(git diff HEAD~1 HEAD --name-only 2>/dev/null || echo "")
-            while IFS= read -r pattern || [[ -n "$pattern" ]]; do
-              [[ "$pattern" =~ ^#.*$ || -z "$pattern" ]] && continue
-              for f in $CHANGED_FILES; do
-                if echo "$f" | grep -qE "$pattern"; then
-                  echo "⏭️  File '$f' matches .llmignore pattern '$pattern'"
-                  SKIP="true"
-                fi
-              done
-            done < .llmignore
+          # Clone the engine repo to get scripts and prompts
+          git clone https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/KrishnaMohanty08/AI-Production-Doc.git /tmp/engine
+
+          cp -r /tmp/engine/scripts .
+          cp -r /tmp/engine/prompts .
+          cp -r /tmp/engine/templates .
+
+          # Use existing ai-docs or copy templates
+          if [[ ! -d ai-docs ]]; then
+            cp -r /tmp/engine/ai-docs .
           fi
-          echo "skip=$SKIP" >> "$GITHUB_OUTPUT"
 
-      # -----------------------------------------------------------------------
-      # 5. Make scripts executable
-      # -----------------------------------------------------------------------
-      - name: 🔧 Set script permissions
-        run: chmod +x scripts/*.sh
+          chmod +x scripts/*.sh
 
-      # -----------------------------------------------------------------------
-      # 6. Run all documentation generators
-      # -----------------------------------------------------------------------
       - name: 📊 Generate progress.md
-        if: steps.llmignore.outputs.skip != 'true'
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
         run: |
-          echo "::group::Progress Doc Generation"
           ./scripts/generate-progress.sh
-          echo "::endgroup::"
-      
-      - name: ⏳ Wait
+          if [[ ! -f ai-docs/progress.md ]] || [[ ! -s ai-docs/progress.md ]]; then
+            echo "❌ ERROR: progress.md generation failed or is empty"
+            exit 1
+          fi
+          echo "✅ progress.md generated successfully"
+
+      - name: ⏳ Wait for rate limit
         run: sleep 30
 
       - name: 🏛️ Generate architecture.md
-        if: steps.llmignore.outputs.skip != 'true'
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
         run: |
-          echo "::group::Architecture Doc Generation"
           ./scripts/generate-architecture.sh
-          echo "::endgroup::"
+          if [[ ! -f ai-docs/architecture.md ]] || [[ ! -s ai-docs/architecture.md ]]; then
+            echo "❌ ERROR: architecture.md generation failed or is empty"
+            exit 1
+          fi
+          echo "✅ architecture.md generated successfully"
+
+      - name: ⏳ Wait for rate limit
+        run: sleep 30
 
       - name: 🗺️ Generate dfd.md
-        if: steps.llmignore.outputs.skip != 'true'
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY_2 }}
         run: |
-          echo "::group::DFD Generation"
           ./scripts/generate-dfd.sh
-          echo "::endgroup::"
+          if [[ ! -f ai-docs/dfd.md ]] || [[ ! -s ai-docs/dfd.md ]]; then
+            echo "❌ ERROR: dfd.md generation failed or is empty"
+            exit 1
+          fi
+          echo "✅ dfd.md generated successfully"
 
-      - name: ⏳ Wait
+      - name: ⏳ Wait for rate limit
         run: sleep 30
 
       - name: 📋 Generate todos.md
-        if: steps.llmignore.outputs.skip != 'true'
         env:
           GROQ_API_KEY: ${{ secrets.GROQ_API_KEY_2 }}
         run: |
-          echo "::group::TODO Tracker Generation"
           ./scripts/generate-todos.sh
-          echo "::endgroup::"
+          if [[ ! -f ai-docs/todos.md ]] || [[ ! -s ai-docs/todos.md ]]; then
+            echo "❌ ERROR: todos.md generation failed or is empty"
+            exit 1
+          fi
+          echo "✅ todos.md generated successfully"
 
-      # -----------------------------------------------------------------------
-      # 7. Verify output files exist
-      # -----------------------------------------------------------------------
-      - name: ✅ Verify generated docs
-        run: |
-          for f in ai-docs/progress.md ai-docs/architecture.md ai-docs/dfd.md ai-docs/todos.md; do
-            if [[ -f "$f" ]]; then
-              echo "✅ $f ($(wc -l < "$f") lines)"
-            else
-              echo "⚠️  WARNING: $f was not generated"
-            fi
-          done
-
-      # -----------------------------------------------------------------------
-      # 8. Commit updated docs back to repository
-      # -----------------------------------------------------------------------
-      - name: 💾 Commit updated documentation
+      - name: 💾 Commit docs back to buy-sell-app
         run: |
           git config --local user.email "ai-devdocs[bot]@users.noreply.github.com"
           git config --local user.name "AI DevDocs Engine"
 
-          git add ai-docs/
+          git add ai-docs/ changes.diff commit.txt
 
-          # Only commit if there are actual changes
           if git diff --staged --quiet; then
-            echo "ℹ️  No documentation changes to commit."
+            echo "ℹ️ No changes to commit."
           else
-            COMMIT_HASH=$(git log -1 --format="%h" HEAD)
-            git commit -m "docs(ai): auto-update documentation [${COMMIT_HASH}] [skip ci]"
-            git push
-            echo "✅ Documentation committed and pushed."
+            git commit -m "docs(ai): auto-update documentation and context [skip ci]"
+            git push https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/KrishnaMohanty08/buy-sell-app.git
+            echo "✅ Docs and context files pushed to buy-sell-app!"
           fi
-
-      # -----------------------------------------------------------------------
-      # 9. Upload diff artifacts for debugging (optional)
-      # -----------------------------------------------------------------------
-      - name: 📦 Upload debug artifacts
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: devdocs-debug-${{ github.sha }}
-          path: |
-            changes.diff
-            commit.txt
-          retention-days: 3
