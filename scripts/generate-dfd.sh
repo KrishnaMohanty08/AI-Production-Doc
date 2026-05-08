@@ -15,6 +15,35 @@ OUTPUT_FILE="${ROOT_DIR}/ai-docs/dfd.md"
 DIFF_FILE="${ROOT_DIR}/changes.diff"
 COMMIT_FILE="${ROOT_DIR}/commit.txt"
 
+FULL_ANALYSIS=false
+
+if [[ ! -f "$OUTPUT_FILE" ]]; then
+  FULL_ANALYSIS=true
+  echo "🚀 FULL ANALYSIS MODE ENABLED"
+fi
+
+# -----------------------------------------------------------------------------
+# Generate semantic repository context
+# -----------------------------------------------------------------------------
+echo "🧠 Running repository intelligence extraction..."
+bash "${ROOT_DIR}/scripts/generate-context.sh"
+
+CONTEXT_DIR="${ROOT_DIR}/context"
+
+# Validate context files were created
+for ctx_file in "routes.txt" "prisma.txt" "controllers.txt" "frontend.txt" "auth.txt"; do
+  if [[ ! -f "${CONTEXT_DIR}/${ctx_file}" ]]; then
+    echo "❌ ERROR: Context file not created: ${ctx_file}" >&2
+    exit 1
+  fi
+done
+
+ROUTES_CONTEXT=$(cat "${CONTEXT_DIR}/routes.txt" | head -c 12000)
+PRISMA_CONTEXT=$(cat "${CONTEXT_DIR}/prisma.txt" | head -c 12000)
+CONTROLLER_CONTEXT=$(cat "${CONTEXT_DIR}/controllers.txt" | head -c 15000)
+FRONTEND_CONTEXT=$(cat "${CONTEXT_DIR}/frontend.txt" | head -c 10000)
+AUTH_CONTEXT=$(cat "${CONTEXT_DIR}/auth.txt" | head -c 6000)
+
 GROQ_MODEL="llama-3.3-70b-versatile"
 GROQ_API_URL="https://api.groq.com/openai/v1/chat/completions"
 GROQ_MAX_TOKENS=2048
@@ -38,7 +67,21 @@ done
 # Read inputs
 # ---------------------------------------------------------------------------
 PROMPT_TEMPLATE=$(cat "$PROMPT_FILE")
-DIFF_CONTENT=$(echo "$(cat "$DIFF_FILE")" | head -c 5000)
+if [[ "$FULL_ANALYSIS" == "true" ]]; then
+  echo "📚 FULL ANALYSIS MODE: scanning broader repository context..."
+
+  DIFF_CONTENT=$(find "$ROOT_DIR" \
+    -not -path '*/node_modules/*' \
+    -not -path '*/.git/*' \
+    -not -path '*/dist/*' \
+    -type f \
+    | head -200)
+
+else
+  echo "⚡ Incremental analysis mode..."
+
+  DIFF_CONTENT=$(cat "$DIFF_FILE" | head -c 12000)
+fi
 COMMIT_MSG=$(cat "$COMMIT_FILE")
 
 if [[ -f "$OUTPUT_FILE" ]]; then
@@ -58,6 +101,21 @@ FULL_PROMPT="${PROMPT_TEMPLATE}
 
 === COMMIT MESSAGE ===
 ${COMMIT_MSG}
+
+=== ROUTES ===
+${ROUTES_CONTEXT}
+
+=== DATABASE ===
+${PRISMA_CONTEXT}
+
+=== CONTROLLERS / SERVICES ===
+${CONTROLLER_CONTEXT}
+
+=== FRONTEND ===
+${FRONTEND_CONTEXT}
+
+=== AUTH FLOW ===
+${AUTH_CONTEXT}
 
 === DETECTED ROUTES/ENDPOINTS ===
 ${ROUTES:-None detected in this diff.}
@@ -88,19 +146,31 @@ HTTP_RESPONSE=$(curl --silent --show-error \
     \"max_tokens\": ${GROQ_MAX_TOKENS},
     \"temperature\": 0.2,
     \"messages\": [{\"role\": \"user\", \"content\": ${ESCAPED_PROMPT}}]
-  }" || true)
+  }")
 
 HTTP_BODY=$(echo "$HTTP_RESPONSE" | sed -e 's/HTTPSTATUS:[0-9]*$//')
 HTTP_STATUS=$(echo "$HTTP_RESPONSE" | grep -o 'HTTPSTATUS:[0-9]*' | cut -d: -f2)
 
+if [[ -z "$HTTP_STATUS" ]]; then
+  echo "❌ ERROR: curl request failed (no HTTP status)" >&2
+  echo "$HTTP_BODY" >&2
+  exit 1
+fi
+
 if [[ "$HTTP_STATUS" != "200" ]]; then
-  echo "❌ Groq API error (HTTP ${HTTP_STATUS:-unknown}):" >&2
+  echo "❌ Groq API error (HTTP ${HTTP_STATUS}):" >&2
   echo "$HTTP_BODY" >&2
   exit 1
 fi
 
 GENERATED=$(echo "$HTTP_BODY" \
-  | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['choices'][0]['message']['content'])")
+  | python3 -c "import sys,json; 
+try:
+    d = json.load(sys.stdin)
+    print(d['choices'][0]['message']['content'])
+except (json.JSONDecodeError, KeyError, IndexError) as e:
+    print(f'❌ ERROR: Failed to parse API response: {e}', file=sys.stderr)
+    sys.exit(1)")
 
 if [[ -z "$GENERATED" ]]; then
   echo "❌ Empty response from Groq API." >&2

@@ -15,6 +15,12 @@ jobs:
     timeout-minutes: 15
 
     steps:
+
+      - name: 🧠 Generate repository intelligence
+        run: |
+          chmod +x scripts/generate-context.sh
+          ./scripts/generate-context.sh
+
       - name: 📥 Checkout buy-sell-app repository
         uses: actions/checkout@v4
         with:
@@ -135,7 +141,7 @@ jobs:
           git add ai-docs/ changes.diff commit.txt
 
           if git diff --staged --quiet; then
-            echo "ℹ️ No changes to commit."
+            echo " No changes to commit."
           else
             git commit -m "docs(ai): auto-update documentation and context [skip ci]"
             git push https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/KrishnaMohanty08/buy-sell-app.git

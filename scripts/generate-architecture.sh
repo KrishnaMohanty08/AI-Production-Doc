@@ -15,9 +15,16 @@ OUTPUT_FILE="${ROOT_DIR}/ai-docs/architecture.md"
 DIFF_FILE="${ROOT_DIR}/changes.diff"
 COMMIT_FILE="${ROOT_DIR}/commit.txt"
 
+FULL_ANALYSIS=false
+
+if [[ ! -f "$OUTPUT_FILE" ]]; then
+  FULL_ANALYSIS=true
+  echo "🚀 FULL ANALYSIS MODE ENABLED"
+fi
+
 GROQ_MODEL="llama-3.3-70b-versatile"
 GROQ_API_URL="https://api.groq.com/openai/v1/chat/completions"
-GROQ_MAX_TOKENS=2048
+GROQ_MAX_TOKENS=6000
 
 # ---------------------------------------------------------------------------
 # Validation
@@ -49,20 +56,40 @@ STACK_HINTS=""
 [[ -f "${ROOT_DIR}/docker-compose.yml" ]]    && STACK_HINTS+="Docker Compose detected\n"
 
 # Read repo tree (top 2 levels)
-REPO_TREE=$(find "$ROOT_DIR" \
-  -not -path '*/.git/*' \
-  -not -path '*/node_modules/*' \
-  -not -path '*/__pycache__/*' \
-  -not -path '*/dist/*' \
-  -not -path '*/.next/*' \
-  -maxdepth 3 \
-  -print 2>/dev/null | sed "s|${ROOT_DIR}/||" | head -80)
+# -----------------------------------------------------------------------------
+# Generate semantic repository context
+# -----------------------------------------------------------------------------
+echo "🧠 Running repository intelligence extraction..."
+bash "${ROOT_DIR}/scripts/generate-context.sh"
+
+CONTEXT_DIR="${ROOT_DIR}/context"
+
+FULL_CONTEXT=$(cat "${CONTEXT_DIR}/full-context.txt" | head -c 50000)
+
+ROUTES_CONTEXT=$(cat "${CONTEXT_DIR}/routes.txt" | head -c 10000)
+PRISMA_CONTEXT=$(cat "${CONTEXT_DIR}/prisma.txt" | head -c 12000)
+FRONTEND_CONTEXT=$(cat "${CONTEXT_DIR}/frontend.txt" | head -c 12000)
+AUTH_CONTEXT=$(cat "${CONTEXT_DIR}/auth.txt" | head -c 6000)
 
 # ---------------------------------------------------------------------------
 # Read inputs
 # ---------------------------------------------------------------------------
 PROMPT_TEMPLATE=$(cat "$PROMPT_FILE")
-DIFF_CONTENT=$(echo "$(cat "$DIFF_FILE")" | head -c 6000)
+if [[ "$FULL_ANALYSIS" == "true" ]]; then
+  echo "📚 FULL ANALYSIS MODE: scanning broader repository context..."
+
+  DIFF_CONTENT=$(find "$ROOT_DIR" \
+    -not -path '*/node_modules/*' \
+    -not -path '*/.git/*' \
+    -not -path '*/dist/*' \
+    -type f \
+    | head -200)
+
+else
+  echo "⚡ Incremental analysis mode..."
+
+  DIFF_CONTENT=$(cat "$DIFF_FILE" | head -c 12000)
+fi
 COMMIT_MSG=$(cat "$COMMIT_FILE")
 
 if [[ -f "$OUTPUT_FILE" ]]; then
@@ -70,6 +97,13 @@ if [[ -f "$OUTPUT_FILE" ]]; then
 else
   EXISTING_DOC=$(cat "$TEMPLATE_FILE")
   echo "ℹ️  No existing architecture.md — using template as base."
+fi
+
+# Read full codebase snapshot if available
+if [[ -f "${ROOT_DIR}/codebase.txt" ]]; then
+  CODEBASE_CONTENT=$(cat "${ROOT_DIR}/codebase.txt" | head -c 8000)
+else
+  CODEBASE_CONTENT="No codebase snapshot available."
 fi
 
 # ---------------------------------------------------------------------------
@@ -80,8 +114,20 @@ FULL_PROMPT="${PROMPT_TEMPLATE}
 === DETECTED STACK ===
 ${STACK_HINTS:-No specific stack files detected.}
 
-=== REPO STRUCTURE ===
-${REPO_TREE}
+=== FULL REPOSITORY INTELLIGENCE ===
+${FULL_CONTEXT}
+
+=== ROUTES ===
+${ROUTES_CONTEXT}
+
+=== DATABASE / PRISMA ===
+${PRISMA_CONTEXT}
+
+=== FRONTEND ===
+${FRONTEND_CONTEXT}
+
+=== AUTH / SECURITY ===
+${AUTH_CONTEXT}
 
 === COMMIT MESSAGE ===
 ${COMMIT_MSG}
