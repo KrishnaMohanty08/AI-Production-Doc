@@ -16,10 +16,6 @@ jobs:
 
     steps:
 
-      - name: 🧠 Generate repository intelligence
-        run: |
-          chmod +x scripts/generate-context.sh
-          ./scripts/generate-context.sh
 
       - name: 📥 Checkout buy-sell-app repository
         uses: actions/checkout@v4
@@ -27,42 +23,11 @@ jobs:
           repository: KrishnaMohanty08/buy-sell-app
           token: ${{ secrets.PAT_TOKEN }}
           fetch-depth: 0
-
+      
       - name: 🐍 Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
-      - name: 📝 Generate diff and commit info
-        run: |
-          set -e  # Exit on error
-          
-          git diff HEAD~1 HEAD -- ':!ai-docs' > changes.diff || true
-
-          if [[ ! -s changes.diff ]]; then
-            git show --stat HEAD > changes.diff || true
-          fi
-
-          if [[ ! -s changes.diff ]]; then
-            echo "=== Full repo file listing ===" > changes.diff
-            find . -not -path './.git/*' -not -path './node_modules/*' -type f >> changes.diff
-          fi
-
-          if [[ ! -s changes.diff ]]; then
-            echo "❌ ERROR: Failed to generate changes.diff"
-            exit 1
-          fi
-
-          git log -1 --pretty=format:"%s%n%nAuthor: %an <%ae>%nDate: %ad%nHash: %H" \
-            --date=short > commit.txt
-
-          if [[ ! -s commit.txt ]]; then
-            echo "❌ ERROR: Failed to generate commit.txt"
-            exit 1
-          fi
-
-          echo "📊 Diff: $(wc -l < changes.diff) lines"
-          echo "💬 Commit: $(head -1 commit.txt)"
 
       - name: 📁 Copy engine scripts into workspace
         run: |
@@ -79,6 +44,11 @@ jobs:
           fi
 
           chmod +x scripts/*.sh
+      
+      - name: 🧠 Generate repository intelligence
+        run: |
+          chmod +x scripts/generate-context.sh
+          ./scripts/generate-context.sh
 
       - name: 📊 Generate progress.md
         env:
@@ -147,6 +117,7 @@ jobs:
             git push https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/KrishnaMohanty08/buy-sell-app.git
             echo "✅ Docs and context files pushed to buy-sell-app!"
           fi
+      
       - name: 📝 Generate diff and commit info
         run: |
           set -euo pipefail
