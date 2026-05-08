@@ -26,7 +26,7 @@ jobs:
         with:
           repository: KrishnaMohanty08/buy-sell-app
           token: ${{ secrets.PAT_TOKEN }}
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: 🐍 Set up Python
         uses: actions/setup-python@v5
@@ -147,3 +147,86 @@ jobs:
             git push https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/KrishnaMohanty08/buy-sell-app.git
             echo "✅ Docs and context files pushed to buy-sell-app!"
           fi
+      - name: 📝 Generate diff and commit info
+        run: |
+          set -euo pipefail
+      
+          # Git diff as before
+          git diff HEAD~1 HEAD -- ':!ai-docs' > changes.diff 2>/dev/null || true
+      
+          if [[ ! -s changes.diff ]]; then
+            git show --stat HEAD > changes.diff 2>/dev/null || true
+          fi
+      
+          if [[ ! -s changes.diff ]]; then
+            echo "=== Full repo file listing ===" > changes.diff
+            find . -not -path './.git/*' -not -path './node_modules/*' -type f >> changes.diff
+          fi
+      
+          git log -1 --pretty=format:"%s%n%nAuthor: %an <%ae>%nDate: %ad%nHash: %H" \
+            --date=short > commit.txt
+      
+          # ---------------------------------------------------------------
+          # NEW: Extract actual source file contents for deep analysis
+          # ---------------------------------------------------------------
+          echo "=== CODEBASE SNAPSHOT ===" > codebase.txt
+      
+          # Backend routes
+          echo "--- BACKEND ROUTES ---" >> codebase.txt
+          find . -path './node_modules' -prune -o \
+                 -path './.git' -prune -o \
+                 -name "*.js" -path "*/routes/*" -print | while read f; do
+            echo "=== FILE: $f ===" >> codebase.txt
+            cat "$f" >> codebase.txt
+            echo "" >> codebase.txt
+          done
+      
+          # Controllers
+          echo "--- CONTROLLERS ---" >> codebase.txt
+          find . -path './node_modules' -prune -o \
+                 -path './.git' -prune -o \
+                 -name "*.js" -path "*/controllers/*" -print | while read f; do
+            echo "=== FILE: $f ===" >> codebase.txt
+            cat "$f" >> codebase.txt
+            echo "" >> codebase.txt
+          done
+      
+          # Models / Prisma schema
+          echo "--- MODELS/SCHEMA ---" >> codebase.txt
+          find . -path './node_modules' -prune -o \
+                 -name "schema.prisma" -print \
+                 -o -name "*.model.js" -print \
+                 -o -path "*/models/*" -name "*.js" -print | while read f; do
+            echo "=== FILE: $f ===" >> codebase.txt
+            cat "$f" >> codebase.txt
+            echo "" >> codebase.txt
+          done
+      
+          # Frontend pages
+          echo "--- FRONTEND PAGES ---" >> codebase.txt
+          find . -path './node_modules' -prune -o \
+                 -path './.git' -prune -o \
+                 \( -name "*.jsx" -o -name "*.tsx" \) -print | while read f; do
+            echo "=== FILE: $f ===" >> codebase.txt
+            head -80 "$f" >> codebase.txt  # first 80 lines per file
+            echo "" >> codebase.txt
+          done
+      
+          # Package.json for dependencies
+          echo "--- DEPENDENCIES ---" >> codebase.txt
+          find . -maxdepth 3 -name "package.json" \
+                 -not -path '*/node_modules/*' | while read f; do
+            echo "=== FILE: $f ===" >> codebase.txt
+            cat "$f" >> codebase.txt
+            echo "" >> codebase.txt
+          done
+      
+          # Docker compose
+          if [[ -f docker-compose.yml ]]; then
+            echo "--- DOCKER COMPOSE ---" >> codebase.txt
+            cat docker-compose.yml >> codebase.txt
+          fi
+      
+          echo "📊 Diff: $(wc -l < changes.diff) lines"
+          echo "📦 Codebase snapshot: $(wc -l < codebase.txt) lines"
+          echo "💬 Commit: $(head -1 commit.txt)"
