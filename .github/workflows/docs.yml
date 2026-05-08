@@ -20,7 +20,7 @@ jobs:
         with:
           repository: KrishnaMohanty08/buy-sell-app
           token: ${{ secrets.PAT_TOKEN }}
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: 🐍 Set up Python
         uses: actions/setup-python@v5
