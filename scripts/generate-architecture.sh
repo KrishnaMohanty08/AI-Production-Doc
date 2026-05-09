@@ -24,7 +24,7 @@ fi
 
 GROQ_MODEL="llama-3.3-70b-versatile"
 GROQ_API_URL="https://api.groq.com/openai/v1/chat/completions"
-GROQ_MAX_TOKENS=6000
+GROQ_MAX_TOKENS=4000
 
 # ---------------------------------------------------------------------------
 # Validation
@@ -64,12 +64,12 @@ bash "${ROOT_DIR}/scripts/generate-context.sh"
 
 CONTEXT_DIR="${ROOT_DIR}/context"
 
-FULL_CONTEXT=$(cat "${CONTEXT_DIR}/full-context.txt" | head -c 50000)
+FULL_CONTEXT=$(cat "${CONTEXT_DIR}/full-context.txt" | head -c 15000)
 
-ROUTES_CONTEXT=$(cat "${CONTEXT_DIR}/routes.txt" | head -c 10000)
-PRISMA_CONTEXT=$(cat "${CONTEXT_DIR}/prisma.txt" | head -c 12000)
-FRONTEND_CONTEXT=$(cat "${CONTEXT_DIR}/frontend.txt" | head -c 12000)
-AUTH_CONTEXT=$(cat "${CONTEXT_DIR}/auth.txt" | head -c 6000)
+ROUTES_CONTEXT=$(cat "${CONTEXT_DIR}/routes.txt" | head -c 5000)
+PRISMA_CONTEXT=$(cat "${CONTEXT_DIR}/prisma.txt" | head -c 6000)
+FRONTEND_CONTEXT=$(cat "${CONTEXT_DIR}/frontend.txt" | head -c 6000)
+AUTH_CONTEXT=$(cat "${CONTEXT_DIR}/auth.txt" | head -c 3000)
 
 # ---------------------------------------------------------------------------
 # Read inputs
@@ -88,7 +88,7 @@ if [[ "$FULL_ANALYSIS" == "true" ]]; then
 else
   echo "⚡ Incremental analysis mode..."
 
-  DIFF_CONTENT=$(cat "$DIFF_FILE" | head -c 12000)
+  DIFF_CONTENT=$(cat "$DIFF_FILE" | head -c 5000)
 fi
 COMMIT_MSG=$(cat "$COMMIT_FILE")
 
@@ -101,7 +101,7 @@ fi
 
 # Read full codebase snapshot if available
 if [[ -f "${ROOT_DIR}/codebase.txt" ]]; then
-  CODEBASE_CONTENT=$(cat "${ROOT_DIR}/codebase.txt" | head -c 8000)
+  CODEBASE_CONTENT=$(cat "${ROOT_DIR}/codebase.txt" | head -c 1000)
 else
   CODEBASE_CONTENT="No codebase snapshot available."
 fi
