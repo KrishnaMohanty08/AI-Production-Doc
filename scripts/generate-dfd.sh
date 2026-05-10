@@ -38,11 +38,11 @@ for ctx_file in "routes.txt" "prisma.txt" "controllers.txt" "frontend.txt" "auth
   fi
 done
 
-ROUTES_CONTEXT=$(cat "${CONTEXT_DIR}/routes.txt" | head -c 5000)
-PRISMA_CONTEXT=$(cat "${CONTEXT_DIR}/prisma.txt" | head -c 5000)
-CONTROLLER_CONTEXT=$(cat "${CONTEXT_DIR}/controllers.txt" | head -c 6000)
-FRONTEND_CONTEXT=$(cat "${CONTEXT_DIR}/frontend.txt" | head -c 4000)
-AUTH_CONTEXT=$(cat "${CONTEXT_DIR}/auth.txt" | head -c 3000)
+ROUTES_CONTEXT=$(head -c 5000 "${CONTEXT_DIR}/routes.txt")
+PRISMA_CONTEXT=$(head -c 5000 "${CONTEXT_DIR}/prisma.txt")
+CONTROLLER_CONTEXT=$(head -c 6000 "${CONTEXT_DIR}/controllers.txt")
+FRONTEND_CONTEXT=$(head -c 4000 "${CONTEXT_DIR}/frontend.txt")
+AUTH_CONTEXT=$(head -c 3000 "${CONTEXT_DIR}/auth.txt")
 
 GROQ_MODEL="llama-3.3-70b-versatile"
 GROQ_API_URL="https://api.groq.com/openai/v1/chat/completions"
@@ -80,7 +80,7 @@ if [[ "$FULL_ANALYSIS" == "true" ]]; then
 else
   echo "⚡ Incremental analysis mode..."
 
-  DIFF_CONTENT=$(cat "$DIFF_FILE" | head -c 5000)
+  DIFF_CONTENT=$(head -c 5000 "$DIFF_FILE")
 fi
 COMMIT_MSG=$(cat "$COMMIT_FILE")
 

@@ -55,7 +55,7 @@ TODO_SCAN=$(grep -rn \
 DIFF_TODOS=$(grep -E "^\+.*\b(TODO|FIXME|HACK)\b" "$DIFF_FILE" 2>/dev/null || true)
 
 PROMPT_TEMPLATE=$(cat "$PROMPT_FILE")
-DIFF_CONTENT=$(echo "$(cat "$DIFF_FILE")" | head -c 4000)
+DIFF_CONTENT=$(head -c 4000 "$DIFF_FILE")
 COMMIT_MSG=$(cat "$COMMIT_FILE")
 
 if [[ -f "$OUTPUT_FILE" ]]; then

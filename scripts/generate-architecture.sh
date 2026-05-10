@@ -64,12 +64,12 @@ bash "${ROOT_DIR}/scripts/generate-context.sh"
 
 CONTEXT_DIR="${ROOT_DIR}/context"
 
-FULL_CONTEXT=$(cat "${CONTEXT_DIR}/full-context.txt" | head -c 15000)
+FULL_CONTEXT=$(head -c 15000 "${CONTEXT_DIR}/full-context.txt")
 
-ROUTES_CONTEXT=$(cat "${CONTEXT_DIR}/routes.txt" | head -c 5000)
-PRISMA_CONTEXT=$(cat "${CONTEXT_DIR}/prisma.txt" | head -c 6000)
-FRONTEND_CONTEXT=$(cat "${CONTEXT_DIR}/frontend.txt" | head -c 6000)
-AUTH_CONTEXT=$(cat "${CONTEXT_DIR}/auth.txt" | head -c 3000)
+ROUTES_CONTEXT=$(head -c 5000 "${CONTEXT_DIR}/routes.txt")
+PRISMA_CONTEXT=$(head -c 6000 "${CONTEXT_DIR}/prisma.txt")
+FRONTEND_CONTEXT=$(head -c 6000 "${CONTEXT_DIR}/frontend.txt")
+AUTH_CONTEXT=$(head -c 3000 "${CONTEXT_DIR}/auth.txt")
 
 # ---------------------------------------------------------------------------
 # Read inputs
@@ -88,7 +88,7 @@ if [[ "$FULL_ANALYSIS" == "true" ]]; then
 else
   echo "⚡ Incremental analysis mode..."
 
-  DIFF_CONTENT=$(cat "$DIFF_FILE" | head -c 5000)
+  DIFF_CONTENT=$(head -c 5000 "$DIFF_FILE")
 fi
 COMMIT_MSG=$(cat "$COMMIT_FILE")
 
@@ -101,7 +101,7 @@ fi
 
 # Read full codebase snapshot if available
 if [[ -f "${ROOT_DIR}/codebase.txt" ]]; then
-  CODEBASE_CONTENT=$(cat "${ROOT_DIR}/codebase.txt" | head -c 1000)
+  CODEBASE_CONTENT=$(head -c 1000 "${ROOT_DIR}/codebase.txt")
 else
   CODEBASE_CONTENT="No codebase snapshot available."
 fi

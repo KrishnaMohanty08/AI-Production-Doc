@@ -63,7 +63,7 @@ else
 fi
 
 # Truncate diff to avoid token overflow (max ~6000 chars)
-DIFF_TRUNCATED=$(echo "$DIFF_CONTENT" | head -c 6000)
+DIFF_TRUNCATED=$(printf '%s' "$DIFF_CONTENT" | head -c 6000)
 if [[ ${#DIFF_CONTENT} -gt 6000 ]]; then
   DIFF_TRUNCATED="${DIFF_TRUNCATED}
 ... [diff truncated for token limit]"
