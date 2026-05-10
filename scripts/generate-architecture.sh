@@ -24,7 +24,7 @@ fi
 
 GROQ_MODEL="llama-3.3-70b-versatile"
 GROQ_API_URL="https://api.groq.com/openai/v1/chat/completions"
-GROQ_MAX_TOKENS=4000
+GROQ_MAX_TOKENS=2000
 
 # ---------------------------------------------------------------------------
 # Validation
@@ -64,12 +64,12 @@ bash "${ROOT_DIR}/scripts/generate-context.sh"
 
 CONTEXT_DIR="${ROOT_DIR}/context"
 
-FULL_CONTEXT=$(head -c 15000 "${CONTEXT_DIR}/full-context.txt")
+FULL_CONTEXT=$(head -c 4000 "${CONTEXT_DIR}/full-context.txt")
 
-ROUTES_CONTEXT=$(head -c 5000 "${CONTEXT_DIR}/routes.txt")
-PRISMA_CONTEXT=$(head -c 6000 "${CONTEXT_DIR}/prisma.txt")
-FRONTEND_CONTEXT=$(head -c 6000 "${CONTEXT_DIR}/frontend.txt")
-AUTH_CONTEXT=$(head -c 3000 "${CONTEXT_DIR}/auth.txt")
+ROUTES_CONTEXT=$(head -c 3000 "${CONTEXT_DIR}/routes.txt")
+PRISMA_CONTEXT=$(head -c 3000 "${CONTEXT_DIR}/prisma.txt")
+FRONTEND_CONTEXT=$(head -c 2000 "${CONTEXT_DIR}/frontend.txt")
+AUTH_CONTEXT=$(head -c 1500 "${CONTEXT_DIR}/auth.txt")
 
 # ---------------------------------------------------------------------------
 # Read inputs
