@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="description"
+    content="AI DevDocs Engine — automatically generate and update developer documentation from Git commits."
+  />
+
+  <title>AI DevDocs Engine</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  >
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <div class="noise"></div>
+  <div class="glow glow-one"></div>
+  <div class="glow glow-two"></div>
+
+
+  <!-- =========================
+       NAVIGATION
+  ========================== -->
+
+  <nav class="nav container">
+
+    <a class="brand" href="#top" aria-label="AI DevDocs home">
+      <span class="brand-mark">&lt;/&gt;</span>
+      <span>AI DevDocs</span>
+    </a>
+
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#workflow">Workflow</a>
+      <a href="#safety">Safety</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#contact">Contact</a>
+
+      <a
+        class="nav-github"
+        href="https://github.com/KiyomiMondal/AI_Doc_Production"
+        target="_blank"
+        rel="noreferrer"
+      >
+        GitHub ↗
+      </a>
+    </div>
+
+    <button class="menu-btn" aria-label="Open menu">☰</button>
+
+  </nav>
+
+
+  <main id="top">
+
+
+    <!-- =========================
+         HERO
+    ========================== -->
+
+    <section class="hero container reveal">
+
+      <div class="eyebrow">
+        <span class="status-dot"></span>
+        AI-powered documentation automation
+      </div>
+
+      <h1>
+        Your code changes.<br>
+        <span>Your docs keep up.</span>
+      </h1>
+
+      <p class="hero-copy">
+        Automatically generate and maintain developer documentation
+        from every Git commit using GitHub Actions, Groq and Llama.
+      </p>
+
+      <div class="hero-actions">
+
+        <a class="btn primary" href="#workflow">
+          See how it works <span>↓</span>
+        </a>
+
+        <a
+          class="btn secondary"
+          href="https://github.com/KiyomiMondal/AI_Doc_Production"
+          target="_blank"
+          rel="noreferrer"
+        >
+          View on GitHub ↗
+        </a>
+
+      </div>
+
+
+      <!-- Terminal -->
+
+      <div class="terminal-wrap">
+
+        <div class="terminal">
+
+          <div class="terminal-bar">
+
+            <div class="dots">
+              <i></i>
+              <i></i>
+              <i></i>
+            </div>
+
+            <span>devdocs — automation</span>
+
+            <span class="terminal-spacer"></span>
+
+          </div>
+
+
+          <div class="terminal-body" id="terminal">
+
+            <div>
+              <span class="muted">$</span>
+              git push origin main
+            </div>
+
+            <div class="terminal-gap"></div>
+
+            <div class="terminal-line">
+              <span class="ok">✓</span>
+              Detecting repository changes...
+            </div>
+
+            <div class="terminal-line">
+              <span class="ok">✓</span>
+              Git diff and commit message extracted
+            </div>
+
+            <div class="terminal-line">
+              <span class="ok">✓</span>
+              Calling Groq AI...
+            </div>
+
+            <div class="terminal-line">
+              <span class="ok">✓</span>
+              Updating <span class="file">architecture.md</span>
+            </div>
+
+            <div class="terminal-line">
+              <span class="ok">✓</span>
+              Updating <span class="file">progress.md</span>
+            </div>
+
+            <div class="terminal-line">
+              <span class="ok">✓</span>
+              Generating Mermaid data-flow diagrams
+            </div>
+
+            <div class="terminal-line">
+              <span class="ok">✓</span>
+              Tracking TODO / FIXME / HACK comments
+            </div>
+
+            <div class="terminal-gap"></div>
+
+            <div class="success">
+              Documentation updated successfully <span>✦</span>
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="terminal-shadow"></div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         TECHNOLOGY STACK
+    ========================== -->
+
+    <section class="trust container reveal">
+
+      <span>BUILT WITH</span>
+
+      <div class="tech-row">
+        <b>GitHub Actions</b>
+        <i>•</i>
+
+        <b>Groq API</b>
+        <i>•</i>
+
+        <b>Llama 3 70B</b>
+        <i>•</i>
+
+        <b>Bash</b>
+        <i>•</i>
+
+        <b>Python</b>
+        <i>•</i>
+
+        <b>Git</b>
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         WORKFLOW / HOW IT WORKS
+    ========================== -->
+
+    <section id="workflow" class="section container reveal">
+
+      <div class="section-heading">
+
+        <span class="kicker">WORKFLOW</span>
+
+        <h2>
+          From commit to documentation.<br>
+          <span>Automatically.</span>
+        </h2>
+
+        <p>
+          Push your code. AI DevDocs handles the documentation
+          pipeline without interrupting your development flow.
+        </p>
+
+      </div>
+
+
+      <div class="pipeline">
+
+        <div class="pipe-card">
+
+          <span class="step">01</span>
+
+          <div class="pipe-icon">⌁</div>
+
+          <h3>Push</h3>
+
+          <p>
+            A commit lands on <code>main</code>.
+          </p>
+
+        </div>
+
+
+        <div class="connector">
+          <span>→</span>
+        </div>
+
+
+        <div class="pipe-card">
+
+          <span class="step">02</span>
+
+          <div class="pipe-icon">⌘</div>
+
+          <h3>Analyze</h3>
+
+          <p>
+            Git diff and commit context are extracted.
+          </p>
+
+        </div>
+
+
+        <div class="connector">
+          <span>→</span>
+        </div>
+
+
+        <div class="pipe-card">
+
+          <span class="step">03</span>
+
+          <div class="pipe-icon">✦</div>
+
+          <h3>Generate</h3>
+
+          <p>
+            Groq + Llama transform changes into docs.
+          </p>
+
+        </div>
+
+
+        <div class="connector">
+          <span>→</span>
+        </div>
+
+
+        <div class="pipe-card">
+
+          <span class="step">04</span>
+
+          <div class="pipe-icon">✓</div>
+
+          <h3>Update</h3>
+
+          <p>
+            Living docs are safely committed back.
+          </p>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         GENERATED DOCUMENTATION
+    ========================== -->
+
+    <section id="features" class="section container reveal">
+
+      <div class="section-heading">
+
+        <span class="kicker">
+          GENERATED DOCUMENTATION
+        </span>
+
+        <h2>
+          Four docs.
+          <span>Always in sync.</span>
+        </h2>
+
+        <p>
+          The engine turns repository activity into useful,
+          continuously maintained project knowledge.
+        </p>
+
+      </div>
+
+
+      <div class="feature-grid">
+
+
+        <!-- Progress -->
+
+        <article class="feature-card">
+
+          <div class="feature-top">
+
+            <span class="feature-icon">↗</span>
+
+            <code>progress.md</code>
+
+          </div>
+
+          <h3>Progress Tracking</h3>
+
+          <p>
+            Captures completed tasks, recent changes and pending
+            work from your development history.
+          </p>
+
+          <div class="mini-code">
+
+            <span>✓ Completed</span>
+
+            <span>↻ Recent changes</span>
+
+            <span>⌛ Pending</span>
+
+          </div>
+
+        </article>
+
+
+        <!-- Architecture -->
+
+        <article class="feature-card">
+
+          <div class="feature-top">
+
+            <span class="feature-icon">◇</span>
+
+            <code>architecture.md</code>
+
+          </div>
+
+          <h3>Architecture Docs</h3>
+
+          <p>
+            Maintains your tech stack, project structure,
+            request flows and database schema.
+          </p>
+
+          <div class="architecture">
+            <i></i>
+            <span></span>
+            <i></i>
+            <span></span>
+            <i></i>
+          </div>
+
+        </article>
+
+
+        <!-- DFD -->
+
+        <article class="feature-card">
+
+          <div class="feature-top">
+
+            <span class="feature-icon">⌘</span>
+
+            <code>dfd.md</code>
+
+          </div>
+
+          <h3>Data Flow Diagrams</h3>
+
+          <p>
+            Generates Mermaid system-level and feature-level
+            data flow diagrams as the project evolves.
+          </p>
+
+          <div class="dfd">
+
+            <b>Input</b>
+
+            <span>→</span>
+
+            <b>Engine</b>
+
+            <span>→</span>
+
+            <b>Docs</b>
+
+          </div>
+
+        </article>
+
+
+        <!-- TODO -->
+
+        <article class="feature-card">
+
+          <div class="feature-top">
+
+            <span class="feature-icon">☑</span>
+
+            <code>todos.md</code>
+
+          </div>
+
+          <h3>TODO Intelligence</h3>
+
+          <p>
+            Finds and tracks TODO, FIXME and HACK comments
+            across the codebase in one living document.
+          </p>
+
+          <div class="tags">
+
+            <span>TODO</span>
+
+            <span>FIXME</span>
+
+            <span>HACK</span>
+
+          </div>
+
+        </article>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         AI MANAGED BLOCKS
+    ========================== -->
+
+    <section class="section preserve container reveal">
+
+      <div class="preserve-copy">
+
+        <span class="kicker">
+          AI-MANAGED BLOCKS
+        </span>
+
+        <h2>
+          AI updates the docs.<br>
+          <span>Your notes stay yours.</span>
+        </h2>
+
+        <p>
+          Named block markers let the engine replace only
+          AI-managed sections. Anything you write outside them
+          remains untouched.
+        </p>
+
+
+        <div class="check-list">
+
+          <div>
+            <span>✓</span>
+            Safe manual edits
+          </div>
+
+          <div>
+            <span>✓</span>
+            Predictable document merging
+          </div>
+
+          <div>
+            <span>✓</span>
+            Human context is preserved
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="code-panel">
+
+        <div class="code-title">
+
+          <span>architecture.md</span>
+
+          <span>AI managed</span>
+
+        </div>
+
+        <pre><span class="comment">&lt;!-- AI:START:ARCHITECTURE --&gt;</span>
+
+<span class="code-key">## System Architecture</span>
+The service analyzes each commit
+and updates project documentation.
+
+<span class="comment">&lt;!-- AI:END:ARCHITECTURE --&gt;</span>
+
+<span class="manual">## Team Notes
+This content remains untouched.</span></pre>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         SAFETY
+    ========================== -->
+
+    <section id="safety" class="section container reveal">
+
+      <div class="section-heading centered">
+
+        <span class="kicker">
+          SAFETY BY DESIGN
+        </span>
+
+        <h2>
+          Automation without the
+          <span>chaos.</span>
+        </h2>
+
+        <p>
+          Guardrails keep the documentation pipeline
+          controlled, efficient and predictable.
+        </p>
+
+      </div>
+
+
+      <div class="safety-grid">
+
+        <div>
+
+          <span>∞</span>
+
+          <h3>No infinite loops</h3>
+
+          <p>
+            <code>[skip ci]</code> prevents generated doc
+            commits from retriggering the workflow.
+          </p>
+
+        </div>
+
+
+        <div>
+
+          <span>◫</span>
+
+          <h3>Token aware</h3>
+
+          <p>
+            Large diffs are truncated to keep requests
+            within safe API limits.
+          </p>
+
+        </div>
+
+
+        <div>
+
+          <span>!</span>
+
+          <h3>Fail fast</h3>
+
+          <p>
+            HTTP and empty-response guards stop bad
+            generations before they reach your docs.
+          </p>
+
+        </div>
+
+
+        <div>
+
+          <span>⌁</span>
+
+          <h3>Idempotent</h3>
+
+          <p>
+            The engine commits only when generated
+            documentation actually changes.
+          </p>
+
+        </div>
+
+
+        <div>
+
+          <span>◷</span>
+
+          <h3>Timeout protected</h3>
+
+          <p>
+            API requests have a 60-second timeout
+            to prevent hanging workflows.
+          </p>
+
+        </div>
+
+
+        <div>
+
+          <span>⊘</span>
+
+          <h3>Ignore what matters</h3>
+
+          <p>
+            <code>.llmignore</code> keeps lock files,
+            binaries and unwanted paths out of AI processing.
+          </p>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         PRIVACY & SYSTEM DATA
+    ========================== -->
+
+    <section id="privacy" class="section container reveal">
+
+      <div class="section-heading">
+
+        <span class="kicker">
+          PRIVACY & SYSTEM DATA
+        </span>
+
+        <h2>
+          Your code stays
+          <span>under control.</span>
+        </h2>
+
+        <p>
+          AI DevDocs processes the repository information
+          required to generate and maintain project documentation.
+        </p>
+
+      </div>
+
+
+      <div class="safety-grid">
+
+
+        <div>
+
+          <span>⌁</span>
+
+          <h3>Repository Changes</h3>
+
+          <p>
+            Git diffs and commit context are processed so the
+            documentation engine can understand what changed
+            in the project.
+          </p>
+
+        </div>
+
+
+        <div>
+
+          <span>⊘</span>
+
+          <h3>Ignored Files</h3>
+
+          <p>
+            <code>.llmignore</code> keeps excluded files,
+            binaries and unwanted paths out of AI processing.
+          </p>
+
+        </div>
+
+
+        <div>
+
+          <span>◇</span>
+
+          <h3>API Key Protection</h3>
+
+          <p>
+            API credentials are configured through GitHub
+            Secrets instead of being written directly into
+            the public codebase.
+          </p>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         CONTACT
+    ========================== -->
+
+    <section id="contact" class="section container reveal">
+
+      <div class="section-heading centered">
+
+        <span class="kicker">
+          CONTACT
+        </span>
+
+        <h2>
+          Questions about
+          <span>AI DevDocs?</span>
+        </h2>
+
+        <p>
+          Explore the project repository to learn more,
+          contribute or get in touch with the project team.
+        </p>
+
+      </div>
+
+
+      <div
+        class="hero-actions"
+        style="justify-content: center;"
+      >
+
+        <a
+          class="btn primary"
+          href="https://github.com/KiyomiMondal/AI_Doc_Production"
+          target="_blank"
+          rel="noreferrer"
+        >
+          View Project on GitHub ↗
+        </a>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         FINAL CTA
+    ========================== -->
+
+    <section class="cta container reveal">
+
+      <div class="cta-glow"></div>
+
+      <span class="kicker">
+        SHIP CODE, NOT STALE DOCS
+      </span>
+
+      <h2>
+        Let your documentation<br>
+        <span>maintain itself.</span>
+      </h2>
+
+      <p>
+        Keep project knowledge aligned with
+        the codebase, automatically.
+      </p>
+
+      <a
+        class="btn primary"
+        href="https://github.com/KiyomiMondal/AI_Doc_Production"
+        target="_blank"
+        rel="noreferrer"
+      >
+        Explore the repository ↗
+      </a>
+
+    </section>
+
+  </main>
+
+
+  <!-- =========================
+       FOOTER
+  ========================== -->
+
+  <footer class="container">
+
+    <a class="brand" href="#top">
+
+      <span class="brand-mark">
+        &lt;/&gt;
+      </span>
+
+      <span>
+        AI DevDocs
+      </span>
+
+    </a>
+
+
+    <p>
+      AI-powered developer documentation from every commit.
+    </p>
+
+
+    <span>
+      MIT License
+    </span>
+
+  </footer>
+
+
+  <script src="script.js"></script>
+
+</body>
+</html>
