@@ -1,9 +1,4 @@
 #  AI DevDocs Engine
-
-> Automatically generate and update developer documentation from Git commits using an LLM (Groq API + `llama3-70b-8192`).
-
-[![Docs CI](https://github.com/YOUR_ORG/YOUR_REPO/actions/workflows/docs.yml/badge.svg)](https://github.com/YOUR_ORG/YOUR_REPO/actions/workflows/docs.yml)
-
 ---
 
 ## 🎯 What It Does
