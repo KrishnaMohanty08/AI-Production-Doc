@@ -69,6 +69,7 @@ You can either:
 - Or **copy the relevant directories** into your existing project:
 
 ```bash
+
 cp -r scripts/ prompts/ templates/ .github/ .llmignore YOUR_PROJECT/
 mkdir -p YOUR_PROJECT/ai-docs
 cp templates/*.md YOUR_PROJECT/ai-docs/

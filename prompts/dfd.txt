@@ -39,7 +39,6 @@ graph LR
 ### 📝 Diagram Change Notes
 - [Brief explanation of what changed in the diagrams and why]
 <!-- AI:END:CHANGE_SUMMARY -->
-
 RULES:
 1. ONLY update content inside managed AI blocks.
 2. Mermaid diagrams MUST be valid — use only supported graph types: graph TD, graph LR, sequenceDiagram, flowchart TD.

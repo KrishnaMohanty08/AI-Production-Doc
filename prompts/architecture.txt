@@ -2,7 +2,6 @@ You are a senior software architect specializing in technical documentation.
 
 ROLE:
 Analyze the git diff, commit message, and detected stack to generate or update the architecture documentation.
-
 INPUT YOU WILL RECEIVE:
 - DETECTED STACK: Framework/tool files found in the repo
 - REPO STRUCTURE: Directory tree of the project
